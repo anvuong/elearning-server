@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.17, for macos10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: elearning
 -- ------------------------------------------------------
--- Server version	5.5.5-10.2.14-MariaDB
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,8 +25,10 @@ DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
+  `order` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name_UNIQUE` (`name`)
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  KEY `order_idx` (`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -48,7 +50,7 @@ DROP TABLE IF EXISTS `groups`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `category_id` int(10) unsigned NOT NULL,
+  `category_id` int(10) unsigned DEFAULT NULL,
   `name` varchar(50) DEFAULT NULL,
   `level` tinyint(3) NOT NULL,
   `created_at` datetime DEFAULT NULL,
@@ -56,7 +58,7 @@ CREATE TABLE `groups` (
   KEY `fk_groups_categories_idx` (`category_id`),
   KEY `name_idx` (`name`),
   KEY `level_idx` (`level`),
-  CONSTRAINT `fk_groups_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_groups_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -67,6 +69,89 @@ CREATE TABLE `groups` (
 LOCK TABLES `groups` WRITE;
 /*!40000 ALTER TABLE `groups` DISABLE KEYS */;
 /*!40000 ALTER TABLE `groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `groups_translations`
+--
+
+DROP TABLE IF EXISTS `groups_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `groups_translations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(10) unsigned NOT NULL,
+  `language_id` int(10) unsigned NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_groups_translations_groups_idx` (`group_id`),
+  KEY `fk_groups_translations_languages_idx` (`language_id`),
+  CONSTRAINT `fk_groups_translations_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_groups_translations_languages` FOREIGN KEY (`language_id`) REFERENCES `languages` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `groups_translations`
+--
+
+LOCK TABLES `groups_translations` WRITE;
+/*!40000 ALTER TABLE `groups_translations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `groups_translations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `languages`
+--
+
+DROP TABLE IF EXISTS `languages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `languages` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(5) CHARACTER SET ascii NOT NULL,
+  `name` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_UNIQUE` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `languages`
+--
+
+LOCK TABLES `languages` WRITE;
+/*!40000 ALTER TABLE `languages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `languages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `membership_translations`
+--
+
+DROP TABLE IF EXISTS `membership_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `membership_translations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `membership_id` int(10) unsigned NOT NULL,
+  `language_id` int(10) unsigned NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_membership_translations_membership_idx` (`membership_id`),
+  KEY `fk_membership_translations_language_idx` (`language_id`),
+  CONSTRAINT `fk_membership_translations_language` FOREIGN KEY (`language_id`) REFERENCES `languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_membership_translations_membership` FOREIGN KEY (`membership_id`) REFERENCES `memberships` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `membership_translations`
+--
+
+LOCK TABLES `membership_translations` WRITE;
+/*!40000 ALTER TABLE `membership_translations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `membership_translations` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -133,8 +218,8 @@ CREATE TABLE `playlists_videos` (
   PRIMARY KEY (`playlist_id`,`video_id`),
   KEY `fk_playlists_videos_playlists_idx` (`playlist_id`),
   KEY `fk_playlists_videos_videos_idx` (`video_id`),
-  CONSTRAINT `fk_playlists_videos_playlists` FOREIGN KEY (`playlist_id`) REFERENCES `playlists` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_playlists_videos_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_playlists_videos_playlists` FOREIGN KEY (`playlist_id`) REFERENCES `playlists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_playlists_videos_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -168,9 +253,9 @@ CREATE TABLE `posts` (
   KEY `fk_posts_users_idx` (`user_id`),
   KEY `fk_posts_posts_idx` (`parent_post_id`),
   KEY `created_at_idx` (`created_at`),
-  CONSTRAINT `fk_posts_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_posts_posts` FOREIGN KEY (`parent_post_id`) REFERENCES `posts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_posts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_posts_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_posts_posts` FOREIGN KEY (`parent_post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_posts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -196,8 +281,8 @@ CREATE TABLE `posts_likes` (
   PRIMARY KEY (`post_id`,`user_id`),
   KEY `fk_posts_likes_posts_idx` (`post_id`),
   KEY `fk_posts_likes_users_idx` (`user_id`),
-  CONSTRAINT `fk_posts_likes_posts` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_posts_likes_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_posts_likes_posts` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_posts_likes_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -223,8 +308,8 @@ CREATE TABLE `posts_reports` (
   PRIMARY KEY (`post_id`,`reporting_user_id`),
   KEY `fk_posts_reports_posts_idx` (`post_id`),
   KEY `fk_posts_reports_users_idx` (`reporting_user_id`),
-  CONSTRAINT `fk_posts_reports_posts` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_posts_reports_users` FOREIGN KEY (`reporting_user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_posts_reports_posts` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_posts_reports_users` FOREIGN KEY (`reporting_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -235,6 +320,33 @@ CREATE TABLE `posts_reports` (
 LOCK TABLES `posts_reports` WRITE;
 /*!40000 ALTER TABLE `posts_reports` DISABLE KEYS */;
 /*!40000 ALTER TABLE `posts_reports` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `topics`
+--
+
+DROP TABLE IF EXISTS `topics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `topics` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `topic` varchar(50) NOT NULL,
+  `created_user_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `topic_user_unique_idx` (`created_user_id`,`topic`),
+  KEY `fk_vocab_topics_users_idx` (`created_user_id`),
+  CONSTRAINT `fk_vocab_topics_users` FOREIGN KEY (`created_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `topics`
+--
+
+LOCK TABLES `topics` WRITE;
+/*!40000 ALTER TABLE `topics` DISABLE KEYS */;
+/*!40000 ALTER TABLE `topics` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -251,12 +363,19 @@ CREATE TABLE `users` (
   `phone` varchar(20) CHARACTER SET ascii DEFAULT NULL,
   `avatar` varchar(255) CHARACTER SET ascii DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
+  `gender` tinyint(4) unsigned DEFAULT NULL,
+  `birthday` date DEFAULT NULL,
   `portrait` varchar(255) CHARACTER SET ascii DEFAULT NULL,
-  `login_type` tinyint(3) unsigned DEFAULT 0,
-  `level` tinyint(3) unsigned DEFAULT 0,
-  `account_balance` int(10) unsigned DEFAULT 0,
+  `login_type` tinyint(3) unsigned DEFAULT '0',
+  `level` tinyint(3) unsigned DEFAULT '0',
+  `account_balance` int(10) unsigned DEFAULT '0',
+  `is_admin` tinyint(3) unsigned DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `email_password_idx` (`email`,`password`)
+  UNIQUE KEY `email_UNIQUE` (`email`),
+  UNIQUE KEY `phone_UNIQUE` (`phone`),
+  KEY `email_password_idx` (`email`,`password`),
+  KEY `birthday_idx` (`birthday`),
+  KEY `is_admin_idx` (`is_admin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -282,7 +401,7 @@ CREATE TABLE `users_absence_log` (
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_absense_users_idx` (`user_id`),
-  CONSTRAINT `fk_absense_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_absense_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -307,12 +426,12 @@ CREATE TABLE `users_memberships` (
   `user_id` int(10) unsigned NOT NULL,
   `membership_id` int(10) unsigned NOT NULL,
   `purchased_at` datetime NOT NULL,
-  `valid` tinyint(3) unsigned DEFAULT 1,
+  `valid` tinyint(3) unsigned DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_users_memberships_users_idx` (`user_id`),
   KEY `fk_users_memberships_memberships_idx` (`membership_id`),
-  CONSTRAINT `fk_users_memberships_memberships` FOREIGN KEY (`membership_id`) REFERENCES `memberships` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_users_memberships_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_users_memberships_memberships` FOREIGN KEY (`membership_id`) REFERENCES `memberships` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_users_memberships_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -335,12 +454,12 @@ DROP TABLE IF EXISTS `users_playlists`;
 CREATE TABLE `users_playlists` (
   `user_id` int(10) unsigned NOT NULL,
   `playlist_id` int(10) unsigned NOT NULL,
-  `notes` text DEFAULT NULL,
+  `notes` text,
   PRIMARY KEY (`user_id`,`playlist_id`),
   KEY `fk_users_playlists_users_idx` (`user_id`),
   KEY `fk_users_playlists_playlists_idx` (`playlist_id`),
-  CONSTRAINT `fk_users_playlists_playlists` FOREIGN KEY (`playlist_id`) REFERENCES `playlists` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_users_playlists_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_users_playlists_playlists` FOREIGN KEY (`playlist_id`) REFERENCES `playlists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_users_playlists_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -354,37 +473,6 @@ LOCK TABLES `users_playlists` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `users_scores`
---
-
-DROP TABLE IF EXISTS `users_scores`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users_scores` (
-  `user_id` int(10) unsigned NOT NULL,
-  `video_id` int(10) unsigned NOT NULL,
-  `watch_score` int(10) unsigned NOT NULL DEFAULT 0,
-  `vocab_score` int(10) unsigned NOT NULL DEFAULT 0,
-  `test_score` int(10) unsigned NOT NULL DEFAULT 0,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`user_id`,`video_id`),
-  KEY `fk_users_scores_videos_idx` (`video_id`),
-  KEY `fk_users_scores_users_idx` (`user_id`),
-  CONSTRAINT `fk_users_scores_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_users_scores_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_scores`
---
-
-LOCK TABLES `users_scores` WRITE;
-/*!40000 ALTER TABLE `users_scores` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_scores` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users_videos`
 --
 
@@ -394,12 +482,17 @@ DROP TABLE IF EXISTS `users_videos`;
 CREATE TABLE `users_videos` (
   `user_id` int(10) unsigned NOT NULL,
   `video_id` int(10) unsigned NOT NULL,
-  `notes` text DEFAULT NULL,
+  `notes` text,
+  `watch_score` int(10) unsigned NOT NULL DEFAULT '0',
+  `vocab_score` int(10) unsigned NOT NULL DEFAULT '0',
+  `test_score` int(10) unsigned NOT NULL DEFAULT '0',
+  `is_favorite` tinyint(4) GENERATED ALWAYS AS (0) VIRTUAL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`user_id`,`video_id`),
   KEY `fk_users_videos_users_idx` (`user_id`),
   KEY `fk_users_videos_videos_idx` (`video_id`),
-  CONSTRAINT `fk_users_videos_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_users_videos_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_users_videos_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_users_videos_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -423,11 +516,11 @@ CREATE TABLE `users_vocabs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `vocab` varchar(45) NOT NULL,
-  `notes` text DEFAULT NULL,
+  `notes` text,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_users_vocabs_idx` (`user_id`),
-  CONSTRAINT `fk_users_vocabs` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_users_vocabs` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -441,6 +534,32 @@ LOCK TABLES `users_vocabs` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `users_vocabs_topics`
+--
+
+DROP TABLE IF EXISTS `users_vocabs_topics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_vocabs_topics` (
+  `user_vocab_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `topic_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`user_vocab_id`,`topic_id`),
+  KEY `fk_users_vocabs_topics_topics_idx` (`topic_id`),
+  CONSTRAINT `fk_users_vocabs_topics_topics` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_users_vocabs_topics_users_vocabs` FOREIGN KEY (`user_vocab_id`) REFERENCES `users_vocabs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users_vocabs_topics`
+--
+
+LOCK TABLES `users_vocabs_topics` WRITE;
+/*!40000 ALTER TABLE `users_vocabs_topics` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users_vocabs_topics` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `videos`
 --
 
@@ -449,16 +568,21 @@ DROP TABLE IF EXISTS `videos`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `videos` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `category_id` int(10) unsigned DEFAULT NULL,
   `level` tinyint(3) unsigned DEFAULT NULL,
   `title` varchar(50) NOT NULL,
-  `url` varchar(255) CHARACTER SET ascii NOT NULL,
+  `thumbnail_url` varchar(255) CHARACTER SET ascii DEFAULT NULL,
   `subtitle_url` varchar(255) CHARACTER SET ascii DEFAULT NULL,
+  `youtube_id` varchar(50) NOT NULL,
+  `youtube_viewcount` int(10) unsigned DEFAULT NULL,
+  `view_count` int(10) unsigned DEFAULT NULL,
+  `duration` int(10) unsigned DEFAULT '0',
+  `uploaded_date` datetime DEFAULT NULL,
+  `is_featured` tinyint(3) unsigned DEFAULT '0',
+  `true_subs` tinyint(3) unsigned DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `fk_videos_categories_idx` (`category_id`),
   KEY `title_idx` (`title`),
   KEY `level_idx` (`level`),
-  CONSTRAINT `fk_videos_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `youtube_id_idx` (`youtube_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -470,6 +594,32 @@ LOCK TABLES `videos` WRITE;
 /*!40000 ALTER TABLE `videos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `videos` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `videos_categories`
+--
+
+DROP TABLE IF EXISTS `videos_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `videos_categories` (
+  `video_id` int(10) unsigned NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`video_id`,`category_id`),
+  KEY `fk_videos_categories_categories_idx` (`category_id`),
+  CONSTRAINT `fk_videos_categories_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_videos_categories_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `videos_categories`
+--
+
+LOCK TABLES `videos_categories` WRITE;
+/*!40000 ALTER TABLE `videos_categories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `videos_categories` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -480,4 +630,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-01 23:56:17
+-- Dump completed on 2018-04-04 14:46:40
