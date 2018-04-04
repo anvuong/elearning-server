@@ -32,4 +32,33 @@ router.get('/:id', function(req, res) {
     });
 });
 
+router.post('/', function(req, res) {
+    let userInfo = {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        avatar: req.body.avatar,
+        password: req.body.password,
+        gender: req.body.gender,
+        birthday: req.body.birthday,
+        portrait: req.body.portrait
+    };
+    userDAO.createUser(userInfo, function(error, user) {
+        if (error) {
+            let errors = error.errors;
+            if (Array.isArray(errors) && errors.length > 0) {
+                debug('Error while executing userDAO.createUser: %s.', errors[0].message);
+            } else if (error.parent && error.parent.sqlMessage) {
+                debug('Error while executing userDAO.createUser: %s.', error.parent.sqlMessage);
+            } else {
+                debug('Error while executing userDAO.createUser: %s.', JSON.stringify(error));
+            }
+            res.send('Could not create new user, please try again.');
+        } else {
+            debug('userDAO.createUser completed without error, user %s.', JSON.stringify(user));
+            res.send('New user created with id \"' + user.id + '\".');
+        }
+    });
+});
+
 module.exports = router;
