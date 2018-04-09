@@ -3,11 +3,25 @@
 var config = {
     development: {
         mode: 'development',
-        port: 3000
+        port: 3000,
+        db: {
+            host: 'localhost',
+            port: 3306,
+            name: 'elearning',
+            user: 'root',
+            password: 'wae'
+        }
     },
     production: {
         mode: 'production',
-        port: 5000
+        port: 5000,
+        db: {
+            host: 'localhost',
+            port: 3306,
+            name: 'elearning',
+            user: 'root',
+            password: 'wae'
+        }
     }
 };
 
