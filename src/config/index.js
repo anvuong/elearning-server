@@ -10,6 +10,10 @@ var config = {
             name: 'elearning',
             user: 'root',
             password: 'wae'
+        },
+        redis: {
+            host: 'localhost',
+            port: 6379
         }
     },
     production: {
@@ -21,6 +25,10 @@ var config = {
             name: 'elearning',
             user: 'root',
             password: 'wae'
+        },
+        redis: {
+            host: 'localhost',
+            port: 6379
         }
     }
 };

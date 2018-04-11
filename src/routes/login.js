@@ -4,6 +4,7 @@ var express = require('express');
 var debug = require('debug')('elearning-login');
 var userDAO = require('../dao/mysql/userdao');
 var crypto = require('../helpers/crypto');
+var redis = require('../helpers/redis');
 
 var router = express.Router();
 

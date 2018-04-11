@@ -3,6 +3,7 @@
 var express = require('express');
 var debug = require('debug')('elearning-users');
 var userDAO = require('../dao/mysql/userdao');
+var redis = require('../helpers/redis');
 
 var router = express.Router();
 
@@ -56,6 +57,7 @@ router.post('/', function(req, res) {
             res.send('Could not create new user, please try again.');
         } else {
             debug('userDAO.createUser completed without error, user %s.', JSON.stringify(user));
+            redis.set('sessionId', "This is a session ID");
             res.send('New user created with id \"' + user.id + '\".');
         }
     });
