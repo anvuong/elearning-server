@@ -66,7 +66,9 @@ var redisClient = redis.createClient(config.redis);
 
 redisClient.on('ready', function() {
     debug('Redis is ready');
+    redisHelper.initError = null;
     if (config.redis.password) {
+        redisHelper.authError = null;
         redisHelper.isAuthenticated = false;
         redisClient.auth(config.redis.password, function(error, result) {
             debug('Redis authentication completed with error: %s, result: %s', JSON.stringify(error), JSON.stringify(result));
