@@ -33,15 +33,6 @@ CREATE TABLE `categories` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `categories`
---
-
-LOCK TABLES `categories` WRITE;
-/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `groups`
 --
 
@@ -61,15 +52,6 @@ CREATE TABLE `groups` (
   CONSTRAINT `fk_groups_categories` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `groups`
---
-
-LOCK TABLES `groups` WRITE;
-/*!40000 ALTER TABLE `groups` DISABLE KEYS */;
-/*!40000 ALTER TABLE `groups` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `groups_translations`
@@ -92,15 +74,6 @@ CREATE TABLE `groups_translations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `groups_translations`
---
-
-LOCK TABLES `groups_translations` WRITE;
-/*!40000 ALTER TABLE `groups_translations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `groups_translations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `languages`
 --
 
@@ -115,15 +88,6 @@ CREATE TABLE `languages` (
   UNIQUE KEY `code_UNIQUE` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `languages`
---
-
-LOCK TABLES `languages` WRITE;
-/*!40000 ALTER TABLE `languages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `languages` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `membership_translations`
@@ -146,15 +110,6 @@ CREATE TABLE `membership_translations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `membership_translations`
---
-
-LOCK TABLES `membership_translations` WRITE;
-/*!40000 ALTER TABLE `membership_translations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `membership_translations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `memberships`
 --
 
@@ -170,15 +125,6 @@ CREATE TABLE `memberships` (
   UNIQUE KEY `name_UNIQUE` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `memberships`
---
-
-LOCK TABLES `memberships` WRITE;
-/*!40000 ALTER TABLE `memberships` DISABLE KEYS */;
-/*!40000 ALTER TABLE `memberships` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `playlists`
@@ -197,15 +143,6 @@ CREATE TABLE `playlists` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `playlists`
---
-
-LOCK TABLES `playlists` WRITE;
-/*!40000 ALTER TABLE `playlists` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playlists` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `playlists_videos`
 --
 
@@ -222,15 +159,6 @@ CREATE TABLE `playlists_videos` (
   CONSTRAINT `fk_playlists_videos_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `playlists_videos`
---
-
-LOCK TABLES `playlists_videos` WRITE;
-/*!40000 ALTER TABLE `playlists_videos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playlists_videos` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `posts`
@@ -260,15 +188,6 @@ CREATE TABLE `posts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `posts`
---
-
-LOCK TABLES `posts` WRITE;
-/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `posts_likes`
 --
 
@@ -285,15 +204,6 @@ CREATE TABLE `posts_likes` (
   CONSTRAINT `fk_posts_likes_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `posts_likes`
---
-
-LOCK TABLES `posts_likes` WRITE;
-/*!40000 ALTER TABLE `posts_likes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `posts_likes` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `posts_reports`
@@ -314,15 +224,6 @@ CREATE TABLE `posts_reports` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `posts_reports`
---
-
-LOCK TABLES `posts_reports` WRITE;
-/*!40000 ALTER TABLE `posts_reports` DISABLE KEYS */;
-/*!40000 ALTER TABLE `posts_reports` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `topics`
 --
 
@@ -339,15 +240,6 @@ CREATE TABLE `topics` (
   CONSTRAINT `fk_vocab_topics_users` FOREIGN KEY (`created_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `topics`
---
-
-LOCK TABLES `topics` WRITE;
-/*!40000 ALTER TABLE `topics` DISABLE KEYS */;
-/*!40000 ALTER TABLE `topics` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -375,18 +267,11 @@ CREATE TABLE `users` (
   UNIQUE KEY `phone_UNIQUE` (`phone`),
   KEY `email_password_idx` (`email`,`password`),
   KEY `birthday_idx` (`birthday`),
-  KEY `is_admin_idx` (`is_admin`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY `is_admin_idx` (`is_admin`),
+  KEY `phone_password_idx` (`phone`,`password`),
+  KEY `email_phone_password_idx` (`email`,`phone`,`password`)
+) ENGINE=InnoDB AUTO_INCREMENT=72950 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users_absence_log`
@@ -404,15 +289,6 @@ CREATE TABLE `users_absence_log` (
   CONSTRAINT `fk_absense_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_absence_log`
---
-
-LOCK TABLES `users_absence_log` WRITE;
-/*!40000 ALTER TABLE `users_absence_log` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_absence_log` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users_memberships`
@@ -436,15 +312,6 @@ CREATE TABLE `users_memberships` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users_memberships`
---
-
-LOCK TABLES `users_memberships` WRITE;
-/*!40000 ALTER TABLE `users_memberships` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_memberships` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users_playlists`
 --
 
@@ -462,15 +329,6 @@ CREATE TABLE `users_playlists` (
   CONSTRAINT `fk_users_playlists_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_playlists`
---
-
-LOCK TABLES `users_playlists` WRITE;
-/*!40000 ALTER TABLE `users_playlists` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_playlists` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users_videos`
@@ -497,15 +355,6 @@ CREATE TABLE `users_videos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users_videos`
---
-
-LOCK TABLES `users_videos` WRITE;
-/*!40000 ALTER TABLE `users_videos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_videos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users_vocabs`
 --
 
@@ -525,15 +374,6 @@ CREATE TABLE `users_vocabs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users_vocabs`
---
-
-LOCK TABLES `users_vocabs` WRITE;
-/*!40000 ALTER TABLE `users_vocabs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_vocabs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users_vocabs_topics`
 --
 
@@ -549,15 +389,6 @@ CREATE TABLE `users_vocabs_topics` (
   CONSTRAINT `fk_users_vocabs_topics_users_vocabs` FOREIGN KEY (`user_vocab_id`) REFERENCES `users_vocabs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_vocabs_topics`
---
-
-LOCK TABLES `users_vocabs_topics` WRITE;
-/*!40000 ALTER TABLE `users_vocabs_topics` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_vocabs_topics` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `videos`
@@ -587,15 +418,6 @@ CREATE TABLE `videos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `videos`
---
-
-LOCK TABLES `videos` WRITE;
-/*!40000 ALTER TABLE `videos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `videos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `videos_categories`
 --
 
@@ -611,15 +433,6 @@ CREATE TABLE `videos_categories` (
   CONSTRAINT `fk_videos_categories_videos` FOREIGN KEY (`video_id`) REFERENCES `videos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `videos_categories`
---
-
-LOCK TABLES `videos_categories` WRITE;
-/*!40000 ALTER TABLE `videos_categories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `videos_categories` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -630,4 +443,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-04 14:46:40
+-- Dump completed on 2018-04-13 12:21:26
