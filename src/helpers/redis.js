@@ -30,11 +30,32 @@ RedisHelper.prototype.set = function(key, value, callback) {
         if (!Array.isArray(this.buffer)) {
             this.buffer = new Array();
         }
-        this.buffer.push({'key': key, 'value': value, 'callback': callback});
+        this.buffer.push({'action': 'set', 'key': key, 'value': value, 'callback': callback});
     }
 };
 
-RedisHelper.prototype.retrySettingKeysValues = function() {
+RedisHelper.prototype.delete = function(key, callback) {
+    if (!key) {
+        callbackHelper.triggerCallback(callback);
+        return;
+    }
+    if (this.initError) {
+        callbackHelper.triggerCallback(callback, this.initError);
+    } else if (this.authError) {
+        callbackHelper.triggerCallback(callback, this.authError);
+    } else if (this.isAuthenticated) {
+        redisClient.del(key, function(error, result) {
+            callbackHelper.triggerCallback(callback, error, result);
+        });
+    } else {
+        if (!Array.isArray(this.buffer)) {
+            this.buffer = new Array();
+        }
+        this.buffer.push({'action': 'delete', 'key': key, 'callback': callback});
+    }
+};
+
+RedisHelper.prototype.retryActions = function() {
     if (!this.isAuthenticated || !Array.isArray(this.buffer)) {
         return;
     }
@@ -43,11 +64,15 @@ RedisHelper.prototype.retrySettingKeysValues = function() {
         if (!item) {
             continue;
         }
-        this.set(item.key, item.value, item.callback);
+        if (item.action === 'set') {
+            this.set(item.key, item.value, item.callback);
+        } else if (item.action === 'delete') {
+            this.delete(item.key, item.callback);
+        }
     }
 };
 
-RedisHelper.prototype.notifySettingKeysValuesFailed = function(error) {
+RedisHelper.prototype.notifyActionsFailed = function(error) {
     if (!Array.isArray(this.buffer)) {
         return;
     }
@@ -74,16 +99,16 @@ redisClient.on('ready', function() {
             debug('Redis authentication completed with error: %s, result: %s', JSON.stringify(error), JSON.stringify(result));
             if (error) {
                 redisHelper.authError = error;
-                redisHelper.notifySettingKeysValuesFailed(error);
+                redisHelper.notifyActionsFailed(error);
             } else {
                 redisHelper.isAuthenticated = true;
-                redisHelper.retrySettingKeysValues();
+                redisHelper.retryActions();
             }
         });
     } else {
         debug('Redis not protected by credentials, no need for authentication.');
         redisHelper.isAuthenticated = true;
-        redisHelper.retrySettingKeysValues();
+        redisHelper.retryActions();
     }
 });
 
@@ -91,7 +116,7 @@ redisClient.on('error', function(error) {
     debug('Redis error: %s', JSON.stringify(error));
     redisHelper.initError = error;
     redisHelper.isAuthenticated = false;
-    redisHelper.notifySettingKeysValuesFailed(error);
+    redisHelper.notifyActionsFailed(error);
 });
 
 module.exports = redisHelper;
