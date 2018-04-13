@@ -54,7 +54,9 @@ router.post('/', function(req, res) {
                     return;
                 }
             }
-            res.status(401).send();
+            res.status(401).send(JSON.stringify({
+                message: 'Login failed, please check your parameters again.'
+            }));
         }
     });
 });
