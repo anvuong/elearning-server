@@ -4,17 +4,24 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var debug = require('debug')('elearning');
 var config = require('./config')();
+var crypto = require('./helpers/crypto');
 var login = require('./routes/login');
 var logout = require('./routes/logout');
 var users = require('./routes/users');
 
 var app = express();
-app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.json());         // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 app.use(function(req, res, next) {
-    debug('Received a ' + req.method + ' request to ' + req.originalUrl);
+    if (config.mode === 'production') {
+        req.id = crypto.sha256((new Date()).getTime() + '_' + req.connection.remoteAddress); // TODO: Add app.enable('trust proxy') & replace req.connection.remoteAddress with req.ip if express is running behind a proxy (like Nginx)
+    }
+    next();
+});
+app.use(function(req, res, next) {
+    debug('Received a %s request to %s, request ID: %s', req.method, req.originalUrl, req.id);
     next();
 });
 app.use('/login', login);

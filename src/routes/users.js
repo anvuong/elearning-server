@@ -5,6 +5,7 @@ var debug = require('debug')('elearning-users');
 var userDAO = require('../dao/mysql/userdao');
 var redis = require('../helpers/redis');
 var session = require('../helpers/session');
+var config = require('../config')();
 
 var router = express.Router();
 
@@ -58,6 +59,7 @@ router.post('/', function(req, res) {
         portrait: reqUser.portrait
     };
     userDAO.createUser(userInfo, function(error, user) {
+        let requestId = req.id;
         if (error) {
             let errors = error.errors;
             let errorMsg;
@@ -68,13 +70,13 @@ router.post('/', function(req, res) {
             } else {
                 errorMsg = JSON.stringify(error);
             }
-            debug('Error while executing userDAO.createUser: %s.', errorMsg);
+            debug('Request ID: %s, error while executing userDAO.createUser: %s.', requestId, errorMsg);
             res.send(JSON.stringify({
                 resultCode: 1,
-                errorMessage: errorMsg
+                errorMessage: config.mode === 'production' ? 'Could not create user because of an error. Request ID: ' + requestId : errorMsg
             }));
         } else {
-            debug('userDAO.createUser completed without error, user %s.', JSON.stringify(user));
+            debug('Request ID: %s, userDAO.createUser completed without error, user %s.', requestId, JSON.stringify(user));
             let response = {
                 resultCode: 0,
                 userId: user.id
@@ -84,11 +86,19 @@ router.post('/', function(req, res) {
                 redis.set(sessionId, JSON.stringify({
                     userId: user.id
                 }), function(error, result) {
-                    debug('Setting session ID (%s) to redis completed, error: %s, result: %s', sessionId, JSON.stringify(error), JSON.stringify(result));
+                    let errorMsg = JSON.stringify(error);
+                    debug('Request ID: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, sessionId, errorMsg, JSON.stringify(result));
+                    if (error) {
+                        response.resultCode = 1;
+                        response.errorMessage = config.mode === 'production' ? 'Could not log in because of an error. Request ID: ' + requestId : errorMsg;
+                    } else {
+                        response.sessionId = sessionId;
+                    }
+                    res.send(JSON.stringify(response));
                 });
-                response.sessionId = sessionId;
+            } else {
+                res.send(JSON.stringify(response));
             }
-            res.send(JSON.stringify(response));
         }
     });
 });

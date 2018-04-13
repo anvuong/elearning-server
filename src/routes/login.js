@@ -6,6 +6,7 @@ var userDAO = require('../dao/mysql/userdao');
 var crypto = require('../helpers/crypto');
 var redis = require('../helpers/redis');
 var session = require('../helpers/session');
+var config = require('../config')();
 
 var router = express.Router();
 
@@ -23,21 +24,30 @@ router.post('/', function(req, res) {
         return;
     }
     userDAO.findByEmailAndPassword(email, password, function(error, users) {
+        let requestId = req.id;
+        let errorMsg = JSON.stringify(error);
+        debug('Request ID: %s, userDAO.findByEmailAndPassword(%s, %s) completed, error: ', requestId, email, password, errorMsg);
         if (error) {
-            debug('Error while executing userDAO.findByEmailAndPassword(%s, %s): %s.', email, password, JSON.stringify(error));
-            res.status(401).send();
-        } else {
-            debug('userDAO.findByEmailAndPassword(%s, %s) completed without error, users: %s.', email, password, JSON.stringify(users));
-            if (Array.isArray(users)) {
-                if (users.length > 0) {
-                    let user = users[0];
-                    let sessionId = session.generateSessionIdForUser(user);
-                    redis.set(sessionId, JSON.stringify({
-                        userId: user.id
-                    }), function(error, result) {
-                        debug('Setting session ID (%s) to redis completed, error: %s, result: %s', sessionId, JSON.stringify(error), JSON.stringify(result));
-                    });
+            res.send(JSON.stringify({
+                resultCode: 1,
+                errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
+            }));
+        } else if (Array.isArray(users) && users.length > 0) {
+            let user = users[0];
+            let sessionId = session.generateSessionIdForUser(user);
+            redis.set(sessionId, JSON.stringify({
+                userId: user.id
+            }), function(error, result) {
+                errorMsg = JSON.stringify(error);
+                debug('Request ID: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, sessionId, errorMsg, JSON.stringify(result));
+                if (error) {
                     res.send(JSON.stringify({
+                        resultCode: 1,
+                        errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
+                    }));
+                } else {
+                    res.send(JSON.stringify({
+                        resultCode: 0,
                         sessionId: sessionId,
                         user: {
                             id: user.id,
@@ -51,11 +61,12 @@ router.post('/', function(req, res) {
                             account_balance: user.account_balance
                         }
                     }));
-                    return;
                 }
-            }
-            res.status(401).send(JSON.stringify({
-                message: 'Login failed, please check your parameters again.'
+            });
+        } else {
+            res.send(JSON.stringify({
+                resultCode: 1,
+                errorMessage: 'No user found with the specified parameters.'
             }));
         }
     });
