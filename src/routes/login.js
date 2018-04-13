@@ -17,7 +17,9 @@ router.post('/', function(req, res) {
     let email = req.body.email;
     let password = crypto.sha256(req.body.password);
     if (!email && !password) {
-        res.status(400).send();
+        res.status(400).send(JSON.stringify({
+            message: 'No email and phone in request.'
+        }));
         return;
     }
     userDAO.findByEmailAndPassword(email, password, function(error, users) {

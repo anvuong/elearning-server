@@ -37,7 +37,14 @@ router.get('/:id', function(req, res) {
 router.post('/', function(req, res) {
     let reqUser = req.body.user;
     if (!reqUser) {
-        res.status(400).send();
+        res.status(400).send(JSON.stringify({
+            message: 'No user in request.'
+        }));
+        return;
+    } else if (!reqUser.email && !reqUser.phone) {
+        res.status(400).send(JSON.stringify({
+            message: 'User has no email and phone.'
+        }));
         return;
     }
     let userInfo = {
