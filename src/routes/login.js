@@ -16,17 +16,18 @@ router.get('/', function(req, res) {
 
 router.post('/', function(req, res) {
     let email = req.body.email;
-    let password = crypto.sha256(req.body.password);
-    if (!email && !password) {
+    let phone = req.body.phone;
+    if (!email && !phone) {
         res.status(400).send(JSON.stringify({
             message: 'No email and phone in request.'
         }));
         return;
     }
-    userDAO.findByEmailAndPassword(email, password, function(error, users) {
+    let password = crypto.sha256(req.body.password);
+    let callback = function(error, users) {
         let requestId = req.id;
         let errorMsg = JSON.stringify(error);
-        debug('Request ID: %s, userDAO.findByEmailAndPassword(%s, %s) completed, error: ', requestId, email, password, errorMsg);
+        debug('Request ID: %s, finding user completed, error: ', requestId, errorMsg);
         if (error) {
             res.send(JSON.stringify({
                 resultCode: 1,
@@ -69,7 +70,14 @@ router.post('/', function(req, res) {
                 errorMessage: 'No user found with the specified parameters.'
             }));
         }
-    });
+    };
+    if (email && !phone) {
+        userDAO.findByEmailAndPassword(email, password, callback);
+    } else if (!email && phone) {
+        userDAO.findByPhoneAndPassword(phone, password, callback);
+    } else {
+        userDAO.findByEmailAndPhoneAndPassword(email, phone, password, callback);
+    }
 });
 
 module.exports = router;

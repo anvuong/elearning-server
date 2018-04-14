@@ -24,6 +24,18 @@ MySQL_UserDAO.prototype.findByEmailAndPassword = function(email, password, callb
     });
 };
 
+MySQL_UserDAO.prototype.findByPhoneAndPassword = function(phone, password, callback) {
+    executeQuery('SELECT * FROM users WHERE phone = \'' + phone + '\' AND password = \'' + password + '\'', function(error, users) {
+        callbackHelper.triggerCallback(callback, error, users);
+    });
+};
+
+MySQL_UserDAO.prototype.findByEmailAndPhoneAndPassword = function(email, phone, password, callback) {
+    executeQuery('SELECT * FROM users WHERE email = \'' + email + '\' AND phone = \'' + phone + '\' AND password = \'' + password + '\'', function(error, users) {
+        callbackHelper.triggerCallback(callback, error, users);
+    });
+};
+
 MySQL_UserDAO.prototype.createUser = function(info, callback) {
     if (!info) {
         return;
