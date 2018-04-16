@@ -270,7 +270,7 @@ CREATE TABLE `users` (
   KEY `is_admin_idx` (`is_admin`),
   KEY `phone_password_idx` (`phone`,`password`),
   KEY `email_phone_password_idx` (`email`,`phone`,`password`)
-) ENGINE=InnoDB AUTO_INCREMENT=72950 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
