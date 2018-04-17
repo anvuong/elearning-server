@@ -265,11 +265,8 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`),
   UNIQUE KEY `phone_UNIQUE` (`phone`),
-  KEY `email_password_idx` (`email`,`password`),
   KEY `birthday_idx` (`birthday`),
-  KEY `is_admin_idx` (`is_admin`),
-  KEY `phone_password_idx` (`phone`,`password`),
-  KEY `email_phone_password_idx` (`email`,`phone`,`password`)
+  KEY `is_admin_idx` (`is_admin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -443,4 +440,4 @@ CREATE TABLE `videos_categories` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-13 12:21:26
+-- Dump completed on 2018-04-17  9:51:12
