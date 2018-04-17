@@ -15,6 +15,12 @@ UserDAO.prototype.findByPhoneAndPassword = function(phone, password, callback) {
 UserDAO.prototype.findByEmailAndPhoneAndPassword = function(email, phone, password, callback) {
 };
 
+UserDAO.prototype.findByEmail = function(email, callback) {
+};
+
+UserDAO.prototype.findByPhone = function(phone, callback) {
+};
+
 UserDAO.prototype.createUser = function(user) {
 };
 

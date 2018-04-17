@@ -36,6 +36,18 @@ MySQL_UserDAO.prototype.findByEmailAndPhoneAndPassword = function(email, phone, 
     });
 };
 
+MySQL_UserDAO.prototype.findByEmail = function(email, callback) {
+    executeQuery('SELECT * FROM users WHERE email = \'' + email + '\'', function(error, users) {
+        callbackHelper.triggerCallback(callback, error, users);
+    });
+};
+
+MySQL_UserDAO.prototype.findByPhone = function(phone, callback) {
+    executeQuery('SELECT * FROM users WHERE phone = \'' + phone + '\'', function(error, users) {
+        callbackHelper.triggerCallback(callback, error, users);
+    });
+};
+
 MySQL_UserDAO.prototype.createUser = function(info, callback) {
     if (!info) {
         return;

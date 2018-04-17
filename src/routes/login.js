@@ -10,6 +10,13 @@ var config = require('../config')();
 
 var router = express.Router();
 
+router.post('/', function(req, res, next) {
+    if (!req.body.loginType) {
+        req.body.loginType = 'system';
+    }
+    next();
+});
+
 router.get('/', function(req, res) {
     res.send('Login page');
 });
@@ -23,61 +30,94 @@ router.post('/', function(req, res) {
         }));
         return;
     }
-    let password = crypto.sha256(req.body.password);
+    let loginType = req.body.loginType;
     let callback = function(error, users) {
         let requestId = req.id;
         let errorMsg = JSON.stringify(error);
-        debug('Request ID: %s, finding user completed, error: ', requestId, errorMsg);
+        debug('Request ID: %s, loginType: %s, finding user completed, error: ', requestId, loginType, errorMsg);
         if (error) {
             res.send(JSON.stringify({
                 resultCode: 1,
                 errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
             }));
         } else if (Array.isArray(users) && users.length > 0) {
-            let user = users[0];
-            let sessionId = session.generateSessionIdForUser(user);
-            redis.set(sessionId, JSON.stringify({
-                userId: user.id
-            }), function(error, result) {
+            doLoginForUser(req, res, users[0]);
+        } else if (loginType === 'system') {
+            res.send(JSON.stringify({
+                resultCode: 1,
+                errorMessage: 'No user found with the specified parameters.'
+            }));
+        } else {
+            debug('Request ID: %s, loginType: %s, found no existing user, about to create a new one with the specified parameters...');
+            let userInfo = {
+                name: req.body.name,
+                email: email,
+                phone: phone,
+                avatar: req.body.avatar
+            };
+            userDAO.createUser(userInfo, function (error, user) {
                 errorMsg = JSON.stringify(error);
-                debug('Request ID: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, sessionId, errorMsg, JSON.stringify(result));
+                debug('Request ID: %s, loginType: %s, create new user completed, error: %s', requestId, loginType, errorMsg);
                 if (error) {
                     res.send(JSON.stringify({
                         resultCode: 1,
                         errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
                     }));
                 } else {
-                    res.send(JSON.stringify({
-                        resultCode: 0,
-                        sessionId: sessionId,
-                        user: {
-                            id: user.id,
-                            name: user.name,
-                            email: user.email,
-                            phone: user.phone,
-                            gender: user.gender,
-                            birthday: user.birthday,
-                            avatar: user.avatar,
-                            portrait: user.portrait,
-                            account_balance: user.account_balance
-                        }
-                    }));
+                    doLoginForUser(req, res, user);
                 }
             });
-        } else {
-            res.send(JSON.stringify({
-                resultCode: 1,
-                errorMessage: 'No user found with the specified parameters.'
-            }));
         }
     };
-    if (email && !phone) {
-        userDAO.findByEmailAndPassword(email, password, callback);
-    } else if (!email && phone) {
-        userDAO.findByPhoneAndPassword(phone, password, callback);
+    if (loginType === 'system') {
+        let password = crypto.sha256(req.body.password);
+        if (email && !phone) {
+            userDAO.findByEmailAndPassword(email, password, callback);
+        } else if (!email && phone) {
+            userDAO.findByPhoneAndPassword(phone, password, callback);
+        } else {
+            userDAO.findByEmailAndPhoneAndPassword(email, phone, password, callback);
+        }
+    } else if (email) {
+        userDAO.findByEmail(email, callback);
     } else {
-        userDAO.findByEmailAndPhoneAndPassword(email, phone, password, callback);
+        userDAO.findByPhone(phone, callback);
     }
 });
+
+var doLoginForUser = function(req, res, user) {
+    let requestId = req.id;
+    let loginType = req.body.loginType;
+    let sessionId = session.generateSessionIdForUser(user);
+    redis.set(sessionId, JSON.stringify({
+        userId: user.id,
+        loginType: loginType
+    }), function (error, result) {
+        let errorMsg = JSON.stringify(error);
+        debug('Request ID: %s, loginType: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, loginType, sessionId, errorMsg, JSON.stringify(result));
+        if (error) {
+            res.send(JSON.stringify({
+                resultCode: 1,
+                errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
+            }));
+        } else {
+            res.send(JSON.stringify({
+                resultCode: 0,
+                sessionId: sessionId,
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    gender: user.gender,
+                    birthday: user.birthday,
+                    avatar: user.avatar,
+                    portrait: user.portrait,
+                    account_balance: user.account_balance
+                }
+            }));
+        }
+    });
+};
 
 module.exports = router;
