@@ -56,7 +56,8 @@ router.post('/', function(req, res) {
         password: reqUser.password,
         gender: reqUser.gender,
         birthday: reqUser.birthday,
-        portrait: reqUser.portrait
+        portrait: reqUser.portrait,
+        level: reqUser.level
     };
     userDAO.createUser(userInfo, function(error, user) {
         let requestId = req.id;
