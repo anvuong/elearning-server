@@ -9,7 +9,8 @@ var config = {
             port: 3306,
             name: 'elearning',
             user: 'root',
-            password: 'wae'
+            password: 'wae',
+            debug: true
         },
         redis: {
             host: 'localhost',
@@ -24,7 +25,8 @@ var config = {
             port: 3306,
             name: 'elearning',
             user: 'root',
-            password: 'wae'
+            password: 'wae',
+            debug: false
         },
         redis: {
             host: 'localhost',

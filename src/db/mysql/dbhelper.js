@@ -1,23 +1,25 @@
 'use strict';
 
-var _ = require('underscore');
 var mysql = require('mysql');
+var db = require('../../config')().db;
 var callbackHelper = require('../../helpers/callback');
 
 var pool = mysql.createPool({
     connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: 'wae',
-    database: 'elearning',
-    debug: false
+    host: db.host,
+    user: db.user,
+    password: db.password,
+    database: db.name,
+    debug: db.debug
 });
 
 module.exports = function(query, callback) {
     pool.getConnection(function(error, connection) {
         if (error) {
             callbackHelper.triggerCallback(callback, error);
-        } else if (connection) {
+        } else if (!connection) {
+            callbackHelper.triggerCallback(callback, Error('Couldn\'t get connection to database.'));
+        } else {
             connection.query(query, function(error, results) {
                 connection.release();
                 callbackHelper.triggerCallback(callback, error, results);
