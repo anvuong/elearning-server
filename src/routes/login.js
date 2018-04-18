@@ -5,6 +5,7 @@ var debug = require('debug')('elearning-login');
 var userDAO = require('../dao/mysql/userdao');
 var crypto = require('../helpers/crypto');
 var redis = require('../helpers/redis');
+var stringifier = require('../helpers/stringifier');
 var session = require('../helpers/session');
 var config = require('../config')();
 
@@ -25,7 +26,7 @@ router.post('/', function(req, res) {
     let email = req.body.email;
     let phone = req.body.phone;
     if (!email && !phone) {
-        res.status(400).send(JSON.stringify({
+        res.status(400).send(stringifier.stringify({
             message: 'No email and phone in request.'
         }));
         return;
@@ -33,17 +34,17 @@ router.post('/', function(req, res) {
     let loginType = req.body.loginType;
     let callback = function(error, users) {
         let requestId = req.id;
-        let errorMsg = JSON.stringify(error);
+        let errorMsg = stringifier.stringify(error);
         debug('Request ID: %s, loginType: %s, finding user completed, error: ', requestId, loginType, errorMsg);
         if (error) {
-            res.send(JSON.stringify({
+            res.send(stringifier.stringify({
                 resultCode: 1,
                 errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
             }));
         } else if (Array.isArray(users) && users.length > 0) {
             doLoginForUser(req, res, users[0]);
         } else if (loginType === 'system') {
-            res.send(JSON.stringify({
+            res.send(stringifier.stringify({
                 resultCode: 1,
                 errorMessage: 'No user found with the specified parameters.'
             }));
@@ -56,10 +57,10 @@ router.post('/', function(req, res) {
                 avatar: req.body.avatar
             };
             userDAO.createUser(userInfo, function (error, user) {
-                errorMsg = JSON.stringify(error);
+                errorMsg = stringifier.stringify(error);
                 debug('Request ID: %s, loginType: %s, create new user completed, error: %s', requestId, loginType, errorMsg);
                 if (error) {
-                    res.send(JSON.stringify({
+                    res.send(stringifier.stringify({
                         resultCode: 1,
                         errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
                     }));
@@ -89,19 +90,19 @@ var doLoginForUser = function(req, res, user) {
     let requestId = req.id;
     let loginType = req.body.loginType;
     let sessionId = session.generateSessionIdForUser(user);
-    redis.set(sessionId, JSON.stringify({
+    redis.set(sessionId, stringifier.stringify({
         userId: user.id,
         loginType: loginType
     }), function (error, result) {
-        let errorMsg = JSON.stringify(error);
-        debug('Request ID: %s, loginType: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, loginType, sessionId, errorMsg, JSON.stringify(result));
+        let errorMsg = stringifier.stringify(error);
+        debug('Request ID: %s, loginType: %s, setting session ID (%s) to redis completed, error: %s, result: %s', requestId, loginType, sessionId, errorMsg, stringifier.stringify(result));
         if (error) {
-            res.send(JSON.stringify({
+            res.send(stringifier.stringify({
                 resultCode: 1,
                 errorMessage: config.mode === 'production' ? 'Login failed because of an error. Request ID: ' + requestId : errorMsg
             }));
         } else {
-            res.send(JSON.stringify({
+            res.send(stringifier.stringify({
                 resultCode: 0,
                 sessionId: sessionId,
                 user: {

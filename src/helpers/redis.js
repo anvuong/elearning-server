@@ -4,6 +4,7 @@ var debug = require('debug')('elearning-redis');
 var redis = require('redis');
 var config = require('../config')();
 var callbackHelper = require('./callback');
+var stringifier = require('./stringifier');
 
 function RedisHelper() {
 }
@@ -96,7 +97,7 @@ redisClient.on('ready', function() {
         redisHelper.authError = null;
         redisHelper.isAuthenticated = false;
         redisClient.auth(config.redis.password, function(error, result) {
-            debug('Redis authentication completed with error: %s, result: %s', JSON.stringify(error), JSON.stringify(result));
+            debug('Redis authentication completed with error: %s, result: %s', stringifier.stringify(error), stringifier.stringify(result));
             if (error) {
                 redisHelper.authError = error;
                 redisHelper.notifyActionsFailed(error);
@@ -113,7 +114,7 @@ redisClient.on('ready', function() {
 });
 
 redisClient.on('error', function(error) {
-    debug('Redis error: %s', JSON.stringify(error));
+    debug('Redis error: %s', stringifier.stringify(error));
     redisHelper.initError = error;
     redisHelper.isAuthenticated = false;
     redisHelper.notifyActionsFailed(error);
