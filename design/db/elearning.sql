@@ -258,7 +258,6 @@ CREATE TABLE `users` (
   `gender` tinyint(4) unsigned DEFAULT NULL,
   `birthday` date DEFAULT NULL,
   `portrait` varchar(255) CHARACTER SET ascii DEFAULT NULL,
-  `login_type` tinyint(3) unsigned DEFAULT '0',
   `level` tinyint(3) unsigned DEFAULT '0',
   `account_balance` int(10) unsigned DEFAULT '0',
   `is_admin` tinyint(3) unsigned DEFAULT '0',
@@ -440,4 +439,4 @@ CREATE TABLE `videos_categories` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-17  9:51:12
+-- Dump completed on 2018-04-18 10:17:25

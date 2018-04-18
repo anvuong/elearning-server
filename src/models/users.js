@@ -42,11 +42,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: true
     },
-    login_type: {
-      type: DataTypes.INTEGER(3).UNSIGNED,
-      allowNull: true,
-      defaultValue: '0'
-    },
     level: {
       type: DataTypes.INTEGER(3).UNSIGNED,
       allowNull: true,
